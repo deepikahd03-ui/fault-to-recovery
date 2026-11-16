@@ -203,864 +203,72 @@ const fmtDateTime = ts => {
   const p = n => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
 };
-const GRID_DATA_SEED = {
-  meta: {
-    name: 'BESCOM Virtual Distribution Network',
-    region: 'Bengaluru — Circle 4 (BESCOM)',
-    operator: 'Control Room Operator',
-    scada: 'SCADA-BESCOM-T9',
-    version: '1.0.0'
-  },
-  nodes: [{
-    id: 'SUB-A',
-    name: 'Substation Alpha',
-    type: 'substation',
-    x: 90,
-    y: 300,
-    voltageKV: 33,
-    capacityMVA: 25,
-    baseLoad: 9.2
-  }, {
-    id: 'SUB-B',
-    name: 'Substation Beta',
-    type: 'substation',
-    x: 910,
-    y: 300,
-    voltageKV: 33,
-    capacityMVA: 25,
-    baseLoad: 6.4
-  }, {
-    id: 'F1',
-    name: 'Feeder F1',
-    type: 'feeder',
-    x: 250,
-    y: 150,
-    voltageKV: 11,
-    capacityMW: 8,
-    feederOf: 'SUB-A'
-  }, {
-    id: 'F2',
-    name: 'Feeder F2',
-    type: 'feeder',
-    x: 250,
-    y: 300,
-    voltageKV: 11,
-    capacityMW: 8,
-    feederOf: 'SUB-A'
-  }, {
-    id: 'F3',
-    name: 'Feeder F3',
-    type: 'feeder',
-    x: 750,
-    y: 470,
-    voltageKV: 11,
-    capacityMW: 8,
-    feederOf: 'SUB-B'
-  }, {
-    id: 'DT-101',
-    name: 'DT-101',
-    type: 'transformer',
-    x: 470,
-    y: 150,
-    voltageKV: 0.433,
-    capacityKVA: 1000
-  }, {
-    id: 'DT-102',
-    name: 'DT-102',
-    type: 'transformer',
-    x: 470,
-    y: 250,
-    voltageKV: 0.433,
-    capacityKVA: 1500
-  }, {
-    id: 'DT-103',
-    name: 'DT-103',
-    type: 'transformer',
-    x: 470,
-    y: 350,
-    voltageKV: 0.433,
-    capacityKVA: 1500
-  }, {
-    id: 'DT-104',
-    name: 'DT-104',
-    type: 'transformer',
-    x: 600,
-    y: 470,
-    voltageKV: 0.433,
-    capacityKVA: 1250
-  }, {
-    id: 'AREA-A',
-    name: 'Area A',
-    type: 'consumer',
-    x: 720,
-    y: 150,
-    consumers: 1180,
-    loadMW: 1.78,
-    tag: 'Residential'
-  }, {
-    id: 'AREA-B',
-    name: 'Area B',
-    type: 'consumer',
-    x: 720,
-    y: 250,
-    consumers: 1860,
-    loadMW: 2.12,
-    tag: 'Mixed Commercial'
-  }, {
-    id: 'AREA-C',
-    name: 'Area C',
-    type: 'consumer',
-    x: 720,
-    y: 350,
-    consumers: 1640,
-    loadMW: 1.94,
-    tag: 'Industrial Light'
-  }, {
-    id: 'AREA-D',
-    name: 'Area D',
-    type: 'consumer',
-    x: 820,
-    y: 470,
-    consumers: 1420,
-    loadMW: 1.61,
-    tag: 'Residential'
-  }],
-  edges: [{
-    id: 'E-SUBA-F1',
-    from: 'SUB-A',
-    to: 'F1',
-    name: '33kV Incomer A→F1',
-    switch: 'SW-A1',
-    switchState: 'closed',
-    status: 'healthy',
-    telemetry: {
-      voltageKV: 33.0,
-      currentA: 188,
-      loadPct: 46,
-      powerMW: 3.0
-    }
-  }, {
-    id: 'E-SUBA-F2',
-    from: 'SUB-A',
-    to: 'F2',
-    name: '33kV Incomer A→F2',
-    switch: 'SW-A2',
-    switchState: 'closed',
-    status: 'healthy',
-    telemetry: {
-      voltageKV: 33.0,
-      currentA: 318,
-      loadPct: 71,
-      powerMW: 4.5
-    }
-  }, {
-    id: 'E-SUBB-F3',
-    from: 'SUB-B',
-    to: 'F3',
-    name: '33kV Incomer B→F3',
-    switch: 'SW-B3',
-    switchState: 'closed',
-    status: 'healthy',
-    telemetry: {
-      voltageKV: 33.0,
-      currentA: 152,
-      loadPct: 38,
-      powerMW: 2.4
-    }
-  }, {
-    id: 'E-F1-DT101',
-    from: 'F1',
-    to: 'DT-101',
-    name: '11kV Lateral F1→DT-101',
-    switch: 'SW-1',
-    switchState: 'closed',
-    status: 'healthy',
-    telemetry: {
-      voltageKV: 11.0,
-      currentA: 142,
-      loadPct: 58,
-      powerMW: 1.78
-    }
-  }, {
-    id: 'E-F2-DT102',
-    from: 'F2',
-    to: 'DT-102',
-    name: '11kV Lateral F2→DT-102',
-    switch: 'SW-2',
-    switchState: 'closed',
-    status: 'healthy',
-    telemetry: {
-      voltageKV: 11.0,
-      currentA: 196,
-      loadPct: 73,
-      powerMW: 2.12
-    }
-  }, {
-    id: 'E-F2-DT103',
-    from: 'F2',
-    to: 'DT-103',
-    name: '11kV Lateral F2→DT-103',
-    switch: 'SW-3',
-    switchState: 'closed',
-    status: 'healthy',
-    telemetry: {
-      voltageKV: 11.0,
-      currentA: 178,
-      loadPct: 68,
-      powerMW: 1.94
-    }
-  }, {
-    id: 'E-F3-DT104',
-    from: 'F3',
-    to: 'DT-104',
-    name: '11kV Lateral F3→DT-104',
-    switch: 'SW-4',
-    switchState: 'closed',
-    status: 'healthy',
-    telemetry: {
-      voltageKV: 11.0,
-      currentA: 130,
-      loadPct: 52,
-      powerMW: 1.61
-    }
-  }, {
-    id: 'E-TS1',
-    from: 'F2',
-    to: 'F3',
-    name: 'Tie-Line TS-1 (F2↔F3)',
-    switch: 'TS-1',
-    isTie: true,
-    switchState: 'open',
-    status: 'isolated',
-    telemetry: {
-      voltageKV: 0.0,
-      currentA: 0,
-      loadPct: 0,
-      powerMW: 0
-    }
-  }, {
-    id: 'E-DT101-A',
-    from: 'DT-101',
-    to: 'AREA-A',
-    name: 'LV Service DT-101→Area A',
-    switch: 'SW-5',
-    switchState: 'closed',
-    status: 'healthy',
-    telemetry: {
-      voltageKV: 0.433,
-      currentA: 410,
-      loadPct: 58,
-      powerMW: 1.78
-    }
-  }, {
-    id: 'E-DT102-B',
-    from: 'DT-102',
-    to: 'AREA-B',
-    name: 'LV Service DT-102→Area B',
-    switch: 'SW-6',
-    switchState: 'closed',
-    status: 'healthy',
-    telemetry: {
-      voltageKV: 0.433,
-      currentA: 560,
-      loadPct: 73,
-      powerMW: 2.12
-    }
-  }, {
-    id: 'E-DT103-C',
-    from: 'DT-103',
-    to: 'AREA-C',
-    name: 'LV Service DT-103→Area C',
-    switch: 'SW-7',
-    switchState: 'closed',
-    status: 'healthy',
-    telemetry: {
-      voltageKV: 0.433,
-      currentA: 512,
-      loadPct: 68,
-      powerMW: 1.94
-    }
-  }, {
-    id: 'E-DT104-D',
-    from: 'DT-104',
-    to: 'AREA-D',
-    name: 'LV Service DT-104→Area D',
-    switch: 'SW-8',
-    switchState: 'closed',
-    status: 'healthy',
-    telemetry: {
-      voltageKV: 0.433,
-      currentA: 380,
-      loadPct: 52,
-      powerMW: 1.61
-    }
-  }],
-  faults: [],
-  anomalies: [],
-  events: [],
-  relaySequence: [],
-  activeFaultId: null,
-  restorationPlan: null,
-  restorationExecuted: false,
-  restorationPath: [],
-  statusPhase: 'healthy',
-  // healthy | fault_detected | localised | planning | restoring | restored | no_route
-  telemetryHistory: {
-    F1: [],
-    F2: [],
-    F3: []
-  },
-  kpis: {
-    gridHealthPct: 100,
-    activeFeeders: 3,
-    affectedConsumers: 0,
-    avgRestorationSec: 0,
-    totalFaults: 0,
-    restoredFaults: 0
-  }
-};
 
 /* ---------------------------------------------------------------------
-   Graph engine — power flow recompute + downstream analysis
+   apiService.js — thin REST client for the Flask backend.
+   All data fetching goes through http://localhost:5000/api/...
+   (Phase 1 used an in-memory mock + client-side graph engine; Phase 2
+    swaps in the real Python/Flask + networkx API. The React layer is
+    unchanged — to retarget, just change API_BASE.)
 --------------------------------------------------------------------- */
-function clone(g) {
-  return JSON.parse(JSON.stringify(g));
-}
-function buildAdjacency(edges) {
-  const adj = {};
-  edges.forEach(e => {
-    const blocked = e.status === 'faulted' || e.switchState === 'open';
-    if (!blocked) {
-      (adj[e.from] = adj[e.from] || []).push({
-        edge: e,
-        to: e.to
-      });
-      if (e.isTie) (adj[e.to] = adj[e.to] || []).push({
-        edge: e,
-        to: e.from
-      });
-    }
+const API_BASE = 'http://localhost:5000/api';
+async function _jfetch(path, opts = {}) {
+  const res = await fetch(API_BASE + path, {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    ...opts
   });
-  return adj;
-}
-function computePoweredSet(grid) {
-  const adj = buildAdjacency(grid.edges);
-  const powered = new Set();
-  const via = {};
-  const q = grid.nodes.filter(n => n.type === 'substation').map(n => n.id);
-  q.forEach(id => powered.add(id));
-  while (q.length) {
-    const cur = q.shift();
-    (adj[cur] || []).forEach(({
-      edge,
-      to
-    }) => {
-      if (!powered.has(to)) {
-        powered.add(to);
-        via[to] = edge.id;
-        q.push(to);
-      }
-    });
+  if (!res.ok) {
+    let msg = 'API error ' + res.status;
+    try {
+      const j = await res.json();
+      if (j && j.error) msg = j.error;
+    } catch (_) {}
+    throw new Error(msg);
   }
-  return {
-    powered,
-    via
-  };
+  return res.json();
 }
-function downstreamNodes(grid, fromEdgeId) {
-  // nodes downstream of the given edge, ignoring tie (open) and faulted edges
-  const start = grid.edges.find(e => e.id === fromEdgeId);
-  if (!start) return [];
-  const adj = {};
-  grid.edges.forEach(e => {
-    if (e.id === fromEdgeId) return;
-    if (e.status === 'faulted' || e.switchState === 'open') return;
-    (adj[e.from] = adj[e.from] || []).push(e.to);
-    if (e.isTie) (adj[e.to] = adj[e.to] || []).push(e.from);
-  });
-  const seen = new Set([start.to]);
-  const q = [start.to];
-  while (q.length) {
-    const c = q.shift();
-    (adj[c] || []).forEach(t => {
-      if (!seen.has(t)) {
-        seen.add(t);
-        q.push(t);
-      }
-    });
-  }
-  return [...seen];
-}
-function recomputeGrid(grid) {
-  const {
-    powered
-  } = computePoweredSet(grid);
-  // Edge visual status
-  grid.edges.forEach(e => {
-    if (e.status === 'faulted') return;
-    if (grid.restorationPath.includes(e.id)) {
-      e.status = 'restoration';
-      return;
-    }
-    if (e.isTie && e.switchState === 'open') {
-      e.status = 'isolated';
-      return;
-    }
-    const toPowered = powered.has(e.to);
-    if (!toPowered) {
-      e.status = 'isolated';
-    } else {
-      const lp = e.telemetry.loadPct;
-      e.status = lp >= 90 ? 'warning' : lp >= 78 ? 'warning' : 'healthy';
-    }
-  });
-  // Node powered + telemetry zeroing for isolated
-  grid.nodes.forEach(n => {
-    n.powered = powered.has(n.id);
-  });
-  grid.edges.forEach(e => {
-    if (e.status === 'isolated' || e.status === 'faulted') {
-      if (e.status === 'faulted') {/* keep spike set by trigger */} else {
-        e.telemetry.voltageKV = 0;
-        e.telemetry.currentA = 0;
-        e.telemetry.loadPct = 0;
-        e.telemetry.powerMW = 0;
-      }
-    }
-  });
-  // Affected areas
-  grid.affectedAreas = grid.nodes.filter(n => n.type === 'consumer' && !powered.has(n.id)).map(n => ({
-    id: n.id,
-    name: n.name,
-    consumers: n.consumers,
-    loadMW: n.loadMW,
-    tag: n.tag
-  }));
-  // KPIs
-  const totalEdges = grid.edges.filter(e => !e.isTie).length;
-  const healthyEdges = grid.edges.filter(e => !e.isTie && e.status === 'healthy').length;
-  const activeFeeders = grid.nodes.filter(n => n.type === 'feeder' && powered.has(n.id)).length;
-  const affectedConsumers = grid.affectedAreas.reduce((s, a) => s + a.consumers, 0);
-  const restored = grid.events.filter(ev => ev.outcome === 'restored').length;
-  const restoredDurations = grid.events.filter(ev => ev.outcome === 'restored' && ev.durationSec != null).map(ev => ev.durationSec);
-  const avg = restoredDurations.length ? Math.round(restoredDurations.reduce((s, d) => s + d, 0) / restoredDurations.length) : 0;
-  grid.kpis = {
-    gridHealthPct: totalEdges ? Math.round(healthyEdges / totalEdges * 100) : 100,
-    activeFeeders,
-    affectedConsumers,
-    avgRestorationSec: avg,
-    totalFaults: grid.events.filter(ev => ev.type === 'fault').length,
-    restoredFaults: restored
-  };
-  return grid;
-}
-
-/* ---------------------------------------------------------------------
-   apiService.js  —  clean API service layer (mock now, Flask REST later)
-   Each method returns a Promise. Swap internals to fetch() in Phase 2.
---------------------------------------------------------------------- */
-const API_BASE = '/api'; // Phase 2: real Flask endpoint base
-
 const apiService = {
-  _store: null,
-  _init() {
-    if (!this._store) this._store = clone(GRID_DATA_SEED);
-    this._store = recomputeGrid(this._store);
-    return this._store;
-  },
-  _snap() {
-    return clone(this._init());
-  },
-  _delay(ms = 280) {
-    return new Promise(r => setTimeout(r, ms));
-  },
-  _logEvent(ev) {
-    this._store.events.unshift({
-      id: 'EV-' + (this._store.events.length + 1) + '-' + Math.random().toString(36).slice(2, 6),
-      ts: NOW(),
-      ...ev
-    });
-  },
   async login(creds) {
-    await this._delay(420);
-    // Demo: accept any credentials; recommended admin@bescom.sim / demo123
-    const email = creds && creds.email || '';
-    const ok = email && creds.password && creds.password.length >= 3;
-    if (!ok) return {
-      ok: false,
-      error: 'Invalid credentials. Use admin@bescom.sim / demo123.'
-    };
-    return {
-      ok: true,
-      token: 'demo.' + btoa(email).replace(/=/g, ''),
-      user: {
-        email,
-        name: 'Grid Operator',
-        role: 'Shift Engineer',
-        station: 'BESCOM Circle 4'
-      }
-    };
+    return _jfetch('/login', {
+      method: 'POST',
+      body: JSON.stringify(creds)
+    });
   },
   async getGridState() {
-    await this._delay(120);
-    return this._snap();
-  },
-  async getTelemetryHistory(feederId) {
-    await this._delay(60);
-    return {
-      feederId,
-      history: this._snap().telemetryHistory[feederId] || []
-    };
+    return _jfetch('/network/state');
   },
   async tickTelemetry() {
-    const g = this._init();
-    // jitter powered edges, push feeder history
-    g.edges.forEach(e => {
-      if (e.isTie) return;
-      if (e.status === 'healthy' || e.status === 'warning' || e.status === 'restoration') {
-        const t = e.telemetry;
-        const j = (v, p) => Math.max(0, v + (Math.random() - 0.5) * v * p);
-        t.voltageKV = +(t.voltageKV * (1 + (Math.random() - 0.5) * 0.012)).toFixed(2);
-        t.currentA = Math.round(j(t.currentA, 0.04));
-        t.loadPct = Math.max(0, Math.min(100, Math.round(t.loadPct + (Math.random() - 0.5) * 2.2)));
-        t.powerMW = +(t.currentA * t.voltageKV * 1.732 / 1000).toFixed(2);
-        if (t.loadPct >= 78) e.status = 'warning';else if (e.status === 'warning') e.status = 'healthy';
-      }
-    });
-    ['F1', 'F2', 'F3'].forEach(fid => {
-      const fe = g.edges.find(e => (e.from === g.nodes.find(n => n.id === fid).feederOf || e.id === 'E-SUBA-F' + fid.slice(1)) && e.to === fid);
-      const edge = g.edges.find(e => e.to === fid) || g.edges.find(e => e.from === fid);
-      const src = edge ? edge.telemetry : {
-        voltageKV: 0,
-        currentA: 0,
-        loadPct: 0,
-        powerMW: 0
-      };
-      g.telemetryHistory[fid] = g.telemetryHistory[fid] || [];
-      g.telemetryHistory[fid].push({
-        t: NOW(),
-        v: src.voltageKV,
-        a: src.currentA,
-        p: src.powerMW,
-        load: src.loadPct
-      });
-      if (g.telemetryHistory[fid].length > 30) g.telemetryHistory[fid].shift();
-    });
-    this._store = recomputeGrid(g);
-    return this._snap();
+    return _jfetch('/network/state');
   },
-  async triggerScenario(scenarioId) {
-    const g = this._init();
-    await this._delay(300);
-    if (scenarioId === 'S3') {
-      return this.resetGrid();
-    }
-    // clear previous active fault context
-    g.activeFaultId = null;
-    g.relaySequence = [];
-    g.restorationPlan = null;
-    g.restorationExecuted = false;
-    g.restorationPath = [];
-    // reset edges/switches to healthy base
-    g.edges.forEach(e => {
-      e.status = 'healthy';
-      if (e.isTie) {
-        e.switchState = 'open';
-        e.status = 'isolated';
-        e.telemetry = {
-          voltageKV: 0,
-          currentA: 0,
-          loadPct: 0,
-          powerMW: 0
-        };
-      }
+  async triggerScenario(sid) {
+    if (sid === 'S3') return _jfetch('/simulate/reset', {
+      method: 'POST'
     });
-    // restore nominal telemetry
-    const seed = clone(GRID_DATA_SEED).edges;
-    g.edges.forEach(e => {
-      const s = seed.find(x => x.id === e.id);
-      if (s && !e.isTie) e.telemetry = clone(s.telemetry);
+    return _jfetch('/simulate/fault', {
+      method: 'POST',
+      body: JSON.stringify({
+        scenario: sid
+      })
     });
-    // restore node loads (Area D may have been spiked)
-    const seedNodes = clone(GRID_DATA_SEED).nodes;
-    g.nodes.forEach(n => {
-      const s = seedNodes.find(x => x.id === n.id);
-      if (s) n.loadMW = s.loadMW;
-    });
-    let faultEdgeId, faultType, severity, desc, affectedDesc;
-    if (scenarioId === 'S1') {
-      faultEdgeId = 'E-SUBA-F2';
-      faultType = 'Overcurrent Fault (3-phase short)';
-      severity = 'critical';
-      desc = 'Permanent line fault on 33kV incomer Substation Alpha → Feeder F2. Protective relay tripped CB-A2. Areas B & C lose supply.';
-      affectedDesc = 'Area B + Area C disconnected';
-    } else if (scenarioId === 'S2') {
-      faultEdgeId = 'E-SUBA-F2';
-      faultType = 'Overcurrent Fault + Feeder F3 Thermal Overload (Double-fault / Peak Load)';
-      severity = 'critical';
-      desc = 'Line fault on A→F2 during system peak. Feeder F3 simultaneously at thermal limit (Area D load spiked). Tie restoration infeasible — no feasible route.';
-      affectedDesc = 'Area B + Area C isolated; F3 at capacity';
-      // spike Area D load → F3 near thermal limit
-      const d = g.nodes.find(n => n.id === 'AREA-D');
-      if (d) d.loadMW = 6.7;
-      const f3d = g.edges.find(e => e.id === 'E-F3-DT104');
-      if (f3d) {
-        f3d.telemetry.loadPct = 94;
-        f3d.telemetry.currentA = 540;
-        f3d.telemetry.powerMW = 6.7;
-      }
-      const sbf3 = g.edges.find(e => e.id === 'E-SUBB-F3');
-      if (sbf3) {
-        sbf3.telemetry.loadPct = 92;
-        sbf3.telemetry.currentA = 540;
-        sbf3.telemetry.powerMW = 6.7;
-      }
-    } else {
-      return {
-        ok: false,
-        error: 'Unknown scenario'
-      };
-    }
-    const fe = g.edges.find(e => e.id === faultEdgeId);
-    // fault telemetry: overcurrent spike then dead
-    const spikeI = fe.telemetry.currentA * 14;
-    fe.status = 'faulted';
-    fe.telemetry = {
-      voltageKV: +(fe.telemetry.voltageKV * 0.22).toFixed(2),
-      currentA: Math.round(spikeI),
-      loadPct: 100,
-      powerMW: 0
-    };
-    const faultId = 'FLT-' + (g.faults.length + 1).toString().padStart(3, '0');
-    const fault = {
-      id: faultId,
-      edgeId: faultEdgeId,
-      edgeName: fe.name,
-      type: faultType,
-      severity,
-      desc,
-      affectedDesc,
-      ts: NOW(),
-      scenarioId
-    };
-    g.faults.unshift(fault);
-    g.activeFaultId = faultId;
-    g.statusPhase = 'fault_detected';
-
-    // anomalies
-    g.anomalies.unshift({
-      id: 'AN-' + Math.random().toString(36).slice(2, 7),
-      ts: NOW(),
-      faultId,
-      metric: 'Overcurrent',
-      value: Math.round(spikeI) + ' A',
-      threshold: Math.round(fe.telemetry.currentA / 14 * 1.2) + ' A',
-      location: fe.name,
-      severity
-    });
-    g.anomalies.unshift({
-      id: 'AN-' + Math.random().toString(36).slice(2, 7),
-      ts: NOW() + 30,
-      faultId,
-      metric: 'Undervoltage',
-      value: fe.telemetry.voltageKV + ' kV',
-      threshold: '29.7 kV',
-      location: fe.name,
-      severity: 'high'
-    });
-
-    // relay trip sequence
-    g.relaySequence = [{
-      t: 0,
-      label: 'Fault inception',
-      detail: faultType + ' on ' + fe.name,
-      tag: 'fault'
-    }, {
-      t: 8,
-      label: 'Overcurrent pickup',
-      detail: 'Relay R-F2 (51/50) — I≫Ipickup, ' + Math.round(spikeI) + 'A vs 300A threshold',
-      tag: 'pickup'
-    }, {
-      t: 14,
-      label: 'Relay trip command',
-      detail: 'R-F2 issued TRIP to CB-A2',
-      tag: 'trip'
-    }, {
-      t: 45,
-      label: 'CB-A2 opened',
-      detail: 'Circuit breaker A-2 interrupted fault current',
-      tag: 'break'
-    }, {
-      t: 52,
-      label: 'Fault isolated',
-      detail: 'Upstream intact. Downstream ' + affectedDesc + ' de-energised.',
-      tag: 'iso'
-    }];
-    g.statusPhase = 'localised';
-
-    // downstream affected
-    const ds = downstreamNodes(g, faultEdgeId);
-    g.downstream = ds;
-
-    // restoration plan
-    g.restorationPlan = this._buildPlan(g, fault);
-    g.restorationExecuted = false;
-    g.restorationPath = [];
-    this._logEvent({
-      type: 'fault',
-      subtype: faultType,
-      faultId,
-      location: fe.name,
-      severity,
-      outcome: 'detected',
-      detail: desc
-    });
-    this._logEvent({
-      type: 'localisation',
-      faultId,
-      location: fe.name,
-      outcome: 'localised',
-      detail: 'Relay R-F2 tripped CB-A2. Fault segment ' + fe.name + ' isolated.'
-    });
-    this._store = recomputeGrid(g);
-    return this._snap();
-  },
-  _buildPlan(g, fault) {
-    // For fault on E-SUBA-F2 → restore Area B & C via Tie-Switch TS-1 from F3
-    const tie = g.edges.find(e => e.id === 'E-TS1');
-    const f3cap = g.nodes.find(n => n.id === 'F3').capacityMW;
-    // current F3 load = Area D load (and any other on F3)
-    const f3load = g.nodes.filter(n => n.id === 'AREA-D').reduce((s, n) => s + n.loadMW, 0);
-    const restore = g.nodes.filter(n => ['AREA-B', 'AREA-C'].includes(n.id)).reduce((s, n) => s + n.loadMW, 0);
-    const projected = f3load + restore;
-    const feasible = projected <= f3cap;
-    const margin = +(f3cap - projected).toFixed(2);
-    const actions = [{
-      id: 'a1',
-      kind: 'open',
-      target: 'SW-A2',
-      desc: 'Open sectionaliser SW-A2 to confirm fault isolation on F2 incomer',
-      reason: 'Lock out faulted segment'
-    }, {
-      id: 'a2',
-      kind: 'close',
-      target: 'TS-1',
-      desc: 'Close normally-open tie-switch TS-1 (F2↔F3)',
-      reason: 'Backfeed F2 downstream from Feeder F3'
-    }];
-    const path = feasible ? ['E-TS1', 'E-F2-DT102', 'E-F2-DT103', 'E-DT102-B', 'E-DT103-C'] : [];
-    return {
-      faultId: fault.id,
-      strategy: feasible ? 'Tie-switch backfeed via Feeder F3' : 'No feasible alternative route',
-      altFeeder: 'F3 (Substation Beta)',
-      tieSwitch: 'TS-1',
-      capacityCheck: {
-        feeder: 'F3',
-        capacityMW: f3cap,
-        currentLoadMW: +f3load.toFixed(2),
-        addedLoadMW: +restore.toFixed(2),
-        projectedLoadMW: +projected.toFixed(2),
-        marginMW: margin,
-        result: feasible ? 'Pass' : 'Fail'
-      },
-      actions,
-      restoreTargets: ['AREA-B', 'AREA-C'],
-      restoreLoadMW: +restore.toFixed(2),
-      feasible,
-      pathEdgeIds: path
-    };
-  },
-  async getRestorationPlan(faultId) {
-    await this._delay(160);
-    const s = this._snap();
-    return s.restorationPlan;
   },
   async executeRestoration() {
-    const g = this._init();
-    await this._delay(500);
-    const plan = g.restorationPlan;
-    if (!plan) return {
-      ok: false,
-      error: 'No active restoration plan.'
-    };
-    if (!plan.feasible) {
-      g.statusPhase = 'no_route';
-      this._logEvent({
-        type: 'restoration',
-        faultId: plan.faultId,
-        outcome: 'no_route',
-        detail: 'No feasible route — alternative feeder exceeds thermal capacity. Manual dispatch required.'
-      });
-      this._store = recomputeGrid(g);
-      return this._snap();
-    }
-    // execute switching
-    const swA2 = g.edges.find(e => e.switch === 'SW-A2');
-    if (swA2) swA2.switchState = 'open';
-    const tie = g.edges.find(e => e.id === 'E-TS1');
-    if (tie) {
-      tie.switchState = 'closed';
-      tie.telemetry = {
-        voltageKV: 11.0,
-        currentA: Math.round(plan.restoreLoadMW * 1000 / (11 * 1.732)),
-        loadPct: Math.round(plan.restoreLoadMW / 8 * 100),
-        powerMW: plan.restoreLoadMW
-      };
-    }
-    g.restorationPath = plan.pathEdgeIds;
-    g.restorationExecuted = true;
-    g.statusPhase = 'restoring';
-    // re-energise DT-102 / DT-103 path telemetry
-    ['E-F2-DT102', 'E-F2-DT103', 'E-DT102-B', 'E-DT103-C'].forEach(eid => {
-      const e = g.edges.find(x => x.id === eid);
-      if (e && e.status !== 'faulted') {
-        const seed = clone(GRID_DATA_SEED).edges.find(x => x.id === eid);
-        if (seed) e.telemetry = clone(seed.telemetry);
-      }
+    return _jfetch('/simulate/restore', {
+      method: 'POST'
     });
-    this._logEvent({
-      type: 'switching',
-      faultId: plan.faultId,
-      outcome: 'executed',
-      detail: 'Opened SW-A2; Closed TS-1. Backfeed active via F3.'
-    });
-    g.statusPhase = 'restored';
-    // compute restoration duration
-    const fault = g.faults.find(f => f.id === plan.faultId);
-    const dur = fault ? Math.round((NOW() - fault.ts) / 1000) : 0;
-    this._logEvent({
-      type: 'restoration',
-      faultId: plan.faultId,
-      outcome: 'restored',
-      durationSec: dur,
-      detail: 'Areas B & C re-energised via TS-1 backfeed from F3. Restoration time ' + dur + 's.'
-    });
-    this._store = recomputeGrid(g);
-    return this._snap();
   },
   async resetGrid() {
-    const g = clone(GRID_DATA_SEED);
-    g.events = this._store ? this._store.events.slice(0, 60) : [];
-    if (g.events.length) this._logEventRef = true;
-    this._store = recomputeGrid(g);
-    this._logEvent({
-      type: 'reset',
-      outcome: 'reset',
-      detail: 'Grid reset to healthy nominal state by operator.'
+    return _jfetch('/simulate/reset', {
+      method: 'POST'
     });
-    return this._snap();
   },
-  async getEventHistory(filters) {
-    await this._delay(120);
-    let evs = this._snap().events;
-    if (filters) {
-      if (filters.type && filters.type !== 'all') evs = evs.filter(e => e.type === filters.type);
-      if (filters.q) {
-        const q = filters.q.toLowerCase();
-        evs = evs.filter(e => (e.detail || '').toLowerCase().includes(q) || (e.location || '').toLowerCase().includes(q));
-      }
-    }
-    return evs;
+  async getEventHistory(filters = {}) {
+    const qs = new URLSearchParams();
+    if (filters.type && filters.type !== 'all') qs.set('type', filters.type);
+    if (filters.q) qs.set('q', filters.q);
+    const q = qs.toString();
+    return _jfetch('/events' + (q ? '?' + q : ''));
   }
 };
 
@@ -1076,14 +284,12 @@ function useGrid() {
 function GridProvider({
   children
 }) {
-  const [grid, setGrid] = useState(() => apiService._init() && apiService._snap());
+  const [grid, setGrid] = useState(null);
+  const [bootError, setBootError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
-  const refresh = useCallback(async () => {
-    const s = await apiService.getGridState();
-    setGrid(s);
-    return s;
-  }, []);
+  const loadingRef = useRef(false);
+  const mountedRef = useRef(true);
   const showToast = useCallback((msg, kind = 'info') => {
     setToast({
       msg,
@@ -1092,44 +298,131 @@ function GridProvider({
     });
     setTimeout(() => setToast(null), 3200);
   }, []);
-
-  // live telemetry tick
-  useEffect(() => {
-    const id = setInterval(async () => {
-      const s = await apiService.tickTelemetry();
-      setGrid(s);
-    }, 2600);
-    return () => clearInterval(id);
+  const refresh = useCallback(async () => {
+    const s = await apiService.getGridState();
+    if (mountedRef.current) setGrid(s);
+    return s;
   }, []);
+
+  // boot: fetch initial grid state from the backend
+  useEffect(() => {
+    mountedRef.current = true;
+    apiService.getGridState().then(s => {
+      if (mountedRef.current) setGrid(s);
+    }).catch(e => {
+      if (mountedRef.current) setBootError(e.message || String(e));
+    });
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  // live telemetry poll — every 3s from the real backend (skipped while a mutation is in flight)
+  useEffect(() => {
+    if (!grid) return;
+    const id = setInterval(() => {
+      if (loadingRef.current) return;
+      apiService.getGridState().then(s => {
+        if (mountedRef.current) setGrid(s);
+      }).catch(() => {});
+    }, 3000);
+    return () => clearInterval(id);
+  }, [grid ? 'on' : 'off']);
   const actions = useMemo(() => ({
     login: async creds => apiService.login(creds),
     triggerScenario: async sid => {
+      loadingRef.current = true;
       setLoading(true);
-      const s = await apiService.triggerScenario(sid);
-      setGrid(s);
-      setLoading(false);
-      showToast(sid === 'S3' ? 'Grid reset to healthy state.' : 'Fault scenario injected — protective relays tripping.', sid === 'S3' ? 'success' : 'fault');
-      return s;
+      try {
+        const s = await apiService.triggerScenario(sid);
+        if (mountedRef.current) setGrid(s);
+        showToast(sid === 'S3' ? 'Grid reset to healthy state.' : 'Fault scenario injected — protective relays tripping.', sid === 'S3' ? 'success' : 'fault');
+        return s;
+      } catch (e) {
+        showToast('Scenario failed: ' + (e.message || e), 'fault');
+        throw e;
+      } finally {
+        loadingRef.current = false;
+        setLoading(false);
+      }
     },
     executeRestoration: async () => {
+      loadingRef.current = true;
       setLoading(true);
-      const s = await apiService.executeRestoration();
-      setGrid(s);
-      setLoading(false);
-      const phase = s.statusPhase;
-      showToast(phase === 'restored' ? 'Restoration successful — load re-energised.' : phase === 'no_route' ? 'No feasible route — manual dispatch required.' : 'Restoration executed.', phase === 'restored' ? 'success' : 'fault');
-      return s;
+      try {
+        const s = await apiService.executeRestoration();
+        if (mountedRef.current) setGrid(s);
+        const phase = s.statusPhase;
+        showToast(phase === 'restored' ? 'Restoration successful — load re-energised.' : phase === 'no_route' ? 'No feasible route — manual dispatch required.' : 'Restoration executed.', phase === 'restored' ? 'success' : 'fault');
+        return s;
+      } catch (e) {
+        showToast('Restoration failed: ' + (e.message || e), 'fault');
+        throw e;
+      } finally {
+        loadingRef.current = false;
+        setLoading(false);
+      }
     },
     resetGrid: async () => {
+      loadingRef.current = true;
       setLoading(true);
-      const s = await apiService.resetGrid();
-      setGrid(s);
-      setLoading(false);
-      showToast('Grid restored to nominal healthy state.', 'success');
-      return s;
+      try {
+        const s = await apiService.resetGrid();
+        if (mountedRef.current) setGrid(s);
+        showToast('Grid restored to nominal healthy state.', 'success');
+        return s;
+      } catch (e) {
+        showToast('Reset failed: ' + (e.message || e), 'fault');
+        throw e;
+      } finally {
+        loadingRef.current = false;
+        setLoading(false);
+      }
     },
     refresh
   }), [refresh, showToast]);
+  if (bootError) {
+    return /*#__PURE__*/React.createElement("div", {
+      className: "min-h-screen flex items-center justify-center p-4"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "max-w-md text-center"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-grid-card border border-faulted/40 mb-3"
+    }, /*#__PURE__*/React.createElement(Icon, {
+      name: "alertTriangle",
+      className: "w-8 h-8 text-faulted"
+    })), /*#__PURE__*/React.createElement("h1", {
+      className: "text-xl font-bold text-slate-50"
+    }, "Backend unreachable"), /*#__PURE__*/React.createElement("p", {
+      className: "text-sm text-slate-400 mt-2"
+    }, "Could not connect to the Flask API at ", /*#__PURE__*/React.createElement("span", {
+      className: "font-mono text-restoration"
+    }, "http://localhost:5000"), "."), /*#__PURE__*/React.createElement("p", {
+      className: "text-xs text-slate-500 mt-1"
+    }, "Error: ", bootError), /*#__PURE__*/React.createElement("p", {
+      className: "text-xs text-slate-500 mt-3"
+    }, "Start it with: ", /*#__PURE__*/React.createElement("span", {
+      className: "font-mono"
+    }, "cd download/backend && pip install -r requirements.txt && python app.py")), /*#__PURE__*/React.createElement("button", {
+      onClick: () => {
+        setBootError(null);
+        apiService.getGridState().then(s => mountedRef.current && setGrid(s)).catch(e => mountedRef.current && setBootError(e.message || String(e)));
+      },
+      className: "mt-4 px-4 py-2 rounded-lg bg-restoration text-grid-bg font-semibold text-sm inline-flex items-center gap-2"
+    }, /*#__PURE__*/React.createElement(Icon, {
+      name: "refresh",
+      className: "w-4 h-4"
+    }), "Retry connection")));
+  }
+  if (!grid) {
+    return /*#__PURE__*/React.createElement("div", {
+      className: "min-h-screen flex items-center justify-center p-4 flex-col gap-4"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "loader-ring"
+    }), /*#__PURE__*/React.createElement("div", {
+      className: "text-slate-400 text-sm"
+    }, "Connecting to grid control backend\u2026"));
+  }
   return /*#__PURE__*/React.createElement(GridCtx.Provider, {
     value: {
       grid,
