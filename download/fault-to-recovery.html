@@ -84,7 +84,6 @@
 </div>
 
 <script>
-function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
 /* =====================================================================
    FAULT TO RECOVERY — BESCOM Theme 9
    Smart Electricity Distribution Network Monitoring & Self-Healing Sim
@@ -176,7 +175,7 @@ function Icon({
 }) {
   const inner = ICONS[name];
   if (!inner) return null;
-  return /*#__PURE__*/React.createElement("svg", _extends({
+  return /*#__PURE__*/React.createElement("svg", {
     xmlns: "http://www.w3.org/2000/svg",
     viewBox: "0 0 24 24",
     fill: "none",
@@ -187,8 +186,9 @@ function Icon({
     className: className,
     dangerouslySetInnerHTML: {
       __html: inner
-    }
-  }, rest));
+    },
+    ...rest
+  });
 }
 
 /* ---------------------------------------------------------------------
@@ -211,7 +211,10 @@ const fmtDateTime = ts => {
     swaps in the real Python/Flask + networkx API. The React layer is
     unchanged — to retarget, just change API_BASE.)
 --------------------------------------------------------------------- */
-const API_BASE = 'http://localhost:5000/api';
+// Origin-aware: when the page is served by Flask (localhost OR a public tunnel/domain),
+// use the same origin so visitors reach the right backend. When opened as a file://,
+// fall back to the local Flask dev server.
+const API_BASE = typeof window !== 'undefined' && window.location.protocol.startsWith('http') ? window.location.origin + '/api' : 'http://localhost:5000/api';
 async function _jfetch(path, opts = {}) {
   const res = await fetch(API_BASE + path, {
     headers: {
@@ -421,7 +424,7 @@ function GridProvider({
       className: "loader-ring"
     }), /*#__PURE__*/React.createElement("div", {
       className: "text-slate-400 text-sm"
-    }, "Connecting to grid control backend\u2026"));
+    }, "Connecting to grid control backend…"));
   }
   return /*#__PURE__*/React.createElement(GridCtx.Provider, {
     value: {
@@ -992,7 +995,7 @@ function NetworkMap({
       fontSize: "9",
       fill: "#64748B",
       fontFamily: "JetBrains Mono"
-    }, n.consumers, " cons \xB7 ", n.loadMW, " MW"), n.type === 'feeder' && /*#__PURE__*/React.createElement("text", {
+    }, n.consumers, " cons · ", n.loadMW, " MW"), n.type === 'feeder' && /*#__PURE__*/React.createElement("text", {
       x: "0",
       y: st.r + 26,
       textAnchor: "middle",
@@ -1034,7 +1037,7 @@ function TelemetryPanel({
     rows = [['Voltage', t.voltageKV != null ? t.voltageKV + ' kV' : '—'], ['Current', t.currentA != null ? t.currentA + ' A' : '—'], ['Load', t.loadPct != null ? t.loadPct + ' %' : '—'], ['Power Flow', t.powerMW != null ? t.powerMW + ' MW' : '—'], ['Switch', e.switch || '—'], ['Switch State', e.switchState || '—']];
     extra = e.isTie ? /*#__PURE__*/React.createElement("div", {
       className: "mt-2 text-xs text-slate-400"
-    }, "Normally-open tie switch \u2014 closes during restoration to backfeed downstream feeder.") : null;
+    }, "Normally-open tie switch — closes during restoration to backfeed downstream feeder.") : null;
   }
   return /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 z-40 flex justify-end",
@@ -1077,7 +1080,7 @@ function TelemetryPanel({
     value: v
   }))), extra, /*#__PURE__*/React.createElement("div", {
     className: "mt-4 text-[10px] text-slate-500 font-mono"
-  }, "Sampled ", fmtTime(NOW()), " \xB7 SCADA-BESCOM-T9"))));
+  }, "Sampled ", fmtTime(NOW()), " · SCADA-BESCOM-T9"))));
 }
 
 /* ---------------------------------------------------------------------
@@ -1173,11 +1176,11 @@ function Login({
     className: "text-2xl font-bold text-slate-50"
   }, "Fault to Recovery"), /*#__PURE__*/React.createElement("p", {
     className: "text-sm text-slate-400 mt-1"
-  }, "BESCOM \xB7 Smart Distribution Network Monitoring & Self-Healing Simulation"), /*#__PURE__*/React.createElement("div", {
+  }, "BESCOM · Smart Distribution Network Monitoring & Self-Healing Simulation"), /*#__PURE__*/React.createElement("div", {
     className: "mt-2 inline-flex items-center gap-2 text-[11px] text-slate-500 font-mono"
   }, /*#__PURE__*/React.createElement("span", {
     className: "badge-dot bg-healthy blip"
-  }), "SCADA-BESCOM-T9 \xB7 Theme 9")), /*#__PURE__*/React.createElement("form", {
+  }), "SCADA-BESCOM-T9 · Theme 9")), /*#__PURE__*/React.createElement("form", {
     onSubmit: submit,
     className: "bg-grid-card border border-grid-border rounded-xl p-6 shadow-2xl"
   }, /*#__PURE__*/React.createElement("div", {
@@ -1225,9 +1228,9 @@ function Login({
     className: "w-4 h-4"
   }), busy ? 'Authenticating…' : 'Enter Control Room'), /*#__PURE__*/React.createElement("div", {
     className: "text-[11px] text-slate-500 text-center"
-  }, "Demo credentials pre-filled \xB7 any valid email + 3+ char password accepted"))), /*#__PURE__*/React.createElement("div", {
+  }, "Demo credentials pre-filled · any valid email + 3+ char password accepted"))), /*#__PURE__*/React.createElement("div", {
     className: "mt-4 text-center text-[11px] text-slate-600"
-  }, "\xA9 BESCOM Control Room Simulator \xB7 Frontend mock build v1.0")));
+  }, "© BESCOM Control Room Simulator · Frontend mock build v1.0")));
 }
 function Sidebar({
   page,
@@ -1251,7 +1254,7 @@ function Sidebar({
     className: "text-sm font-bold text-slate-50 leading-tight"
   }, "Fault to Recovery"), /*#__PURE__*/React.createElement("div", {
     className: "text-[10px] text-slate-500 font-mono"
-  }, "BESCOM \xB7 Theme 9"))), /*#__PURE__*/React.createElement("nav", {
+  }, "BESCOM · Theme 9"))), /*#__PURE__*/React.createElement("nav", {
     className: "flex-1 overflow-y-auto py-2"
   }, PAGES.map(p => /*#__PURE__*/React.createElement("button", {
     key: p.id,
@@ -1265,7 +1268,7 @@ function Sidebar({
     className: "w-4 h-4"
   }), /*#__PURE__*/React.createElement("span", null, p.label)))), /*#__PURE__*/React.createElement("div", {
     className: "px-4 py-3 border-t border-grid-border/60 text-[10px] text-slate-600 font-mono"
-  }, "v1.0.0 \xB7 mock data")));
+  }, "v1.0.0 · mock data")));
 }
 function TopBar({
   user,
@@ -1668,10 +1671,10 @@ function MonitoringPage() {
     className: "inline-flex items-center gap-2 text-xs text-slate-400"
   }, /*#__PURE__*/React.createElement("span", {
     className: "badge-dot bg-healthy blip"
-  }), "Live stream \xB7 ", fmtTime(NOW()))), /*#__PURE__*/React.createElement("div", {
+  }), "Live stream · ", fmtTime(NOW()))), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-1 lg:grid-cols-3 gap-4"
   }, /*#__PURE__*/React.createElement(Card, {
-    title: "Voltage (kV) \u2014 Feeders",
+    title: "Voltage (kV) — Feeders",
     icon: "zap"
   }, /*#__PURE__*/React.createElement(LineChart, {
     series: vSeries,
@@ -1691,7 +1694,7 @@ function MonitoringPage() {
       background: ['#22D3EE', '#A78BFA', '#34D399'][i]
     }
   }), fid)))), /*#__PURE__*/React.createElement(Card, {
-    title: "Current (A) \u2014 Feeders",
+    title: "Current (A) — Feeders",
     icon: "activity"
   }, /*#__PURE__*/React.createElement(LineChart, {
     series: aSeries,
@@ -1710,7 +1713,7 @@ function MonitoringPage() {
       background: ['#22D3EE', '#A78BFA', '#34D399'][i]
     }
   }), fid)))), /*#__PURE__*/React.createElement(Card, {
-    title: "Power Flow (MW) \u2014 Feeders",
+    title: "Power Flow (MW) — Feeders",
     icon: "barChart"
   }, /*#__PURE__*/React.createElement(LineChart, {
     series: pSeries,
@@ -1744,7 +1747,7 @@ function MonitoringPage() {
     className: "text-left py-2 pr-4 font-semibold"
   }, "Segment"), /*#__PURE__*/React.createElement("th", {
     className: "text-left py-2 pr-4 font-semibold"
-  }, "From \u2192 To"), /*#__PURE__*/React.createElement("th", {
+  }, "From → To"), /*#__PURE__*/React.createElement("th", {
     className: "text-right py-2 pr-4 font-semibold"
   }, "Voltage (kV)"), /*#__PURE__*/React.createElement("th", {
     className: "text-right py-2 pr-4 font-semibold"
@@ -1768,7 +1771,7 @@ function MonitoringPage() {
       className: "py-2 pr-4 text-slate-200 font-medium"
     }, e.name), /*#__PURE__*/React.createElement("td", {
       className: "py-2 pr-4 text-slate-400 font-mono text-xs"
-    }, e.from, " \u2192 ", e.to), /*#__PURE__*/React.createElement("td", {
+    }, e.from, " → ", e.to), /*#__PURE__*/React.createElement("td", {
       className: "py-2 pr-4 text-right font-mono " + (t.voltageKV < 1 && e.status === 'isolated' ? 'text-slate-600' : 'text-slate-200')
     }, (t.voltageKV || 0).toFixed(2)), /*#__PURE__*/React.createElement("td", {
       className: "py-2 pr-4 text-right font-mono " + (t.currentA === 0 ? 'text-slate-600' : 'text-slate-200')
@@ -1844,7 +1847,7 @@ function FaultDetectPage() {
     className: "space-y-5"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", {
     className: "text-lg font-bold text-slate-100"
-  }, "Fault Detection \u2014 Anomaly Log"), /*#__PURE__*/React.createElement("p", {
+  }, "Fault Detection — Anomaly Log"), /*#__PURE__*/React.createElement("p", {
     className: "text-sm text-slate-400"
   }, "Threshold violations detected by the protection & SCADA analytics engine (overcurrent spikes, undervoltage drops, thermal overload).")), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-2 md:grid-cols-4 gap-4"
@@ -1889,7 +1892,7 @@ function FaultDetectPage() {
     className: "w-12 h-12 text-healthy mb-2"
   }), /*#__PURE__*/React.createElement("div", {
     className: "text-sm text-slate-300 font-semibold"
-  }, "All Clear \u2014 No Active Anomalies"), /*#__PURE__*/React.createElement("div", {
+  }, "All Clear — No Active Anomalies"), /*#__PURE__*/React.createElement("div", {
     className: "text-xs text-slate-500 mt-1"
   }, "All measurements within nominal thresholds. Trigger a fault scenario to populate this log.")) : /*#__PURE__*/React.createElement("div", {
     className: "space-y-2"
@@ -1953,10 +1956,10 @@ function FaultDetectPage() {
     value: "300 A"
   }), /*#__PURE__*/React.createElement(StatRow, {
     label: "Instantaneous trip",
-    value: "1.2\xD7 In"
+    value: "1.2× In"
   }), /*#__PURE__*/React.createElement(StatRow, {
     label: "Fault clear time",
-    value: "\u2264 60 ms",
+    value: "≤ 60 ms",
     good: true
   })), /*#__PURE__*/React.createElement("div", {
     className: "rounded-lg bg-grid-panel/60 border border-grid-border/50 p-3"
@@ -1978,10 +1981,10 @@ function FaultDetectPage() {
     className: "text-xs text-slate-400 uppercase tracking-wider mb-2"
   }, "Thermal Overload (49)"), /*#__PURE__*/React.createElement(StatRow, {
     label: "Alarm",
-    value: "\u2265 78% load"
+    value: "≥ 78% load"
   }), /*#__PURE__*/React.createElement(StatRow, {
     label: "Trip",
-    value: "\u2265 100% load"
+    value: "≥ 100% load"
   }), /*#__PURE__*/React.createElement(StatRow, {
     label: "Feeder cap",
     value: "8 MW",
@@ -2037,7 +2040,7 @@ function FaultLocalPage() {
     className: "flex items-center justify-between flex-wrap gap-3"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", {
     className: "text-lg font-bold text-slate-100"
-  }, "Fault Localisation \u2014 ", fault.id), /*#__PURE__*/React.createElement("p", {
+  }, "Fault Localisation — ", fault.id), /*#__PURE__*/React.createElement("p", {
     className: "text-sm text-slate-400"
   }, fault.type)), /*#__PURE__*/React.createElement(Badge, {
     status: fault.severity
@@ -2128,7 +2131,7 @@ function FaultLocalPage() {
   }, /*#__PURE__*/React.createElement(Icon, {
     name: "alertTriangle",
     className: "w-4 h-4"
-  }), "Fault Isolation Complete"), "Upstream intact \xB7 Downstream ", fault.affectedDesc, ". Restoration decision engine engaged."))), /*#__PURE__*/React.createElement(Card, {
+  }), "Fault Isolation Complete"), "Upstream intact · Downstream ", fault.affectedDesc, ". Restoration decision engine engaged."))), /*#__PURE__*/React.createElement(Card, {
     title: "Fault Summary",
     icon: "fileText"
   }, /*#__PURE__*/React.createElement("div", {
@@ -2188,7 +2191,7 @@ function AffectedPage() {
     className: "space-y-5"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", {
     className: "text-lg font-bold text-slate-100"
-  }, "Affected Areas \u2014 Impact Breakdown"), /*#__PURE__*/React.createElement("p", {
+  }, "Affected Areas — Impact Breakdown"), /*#__PURE__*/React.createElement("p", {
     className: "text-sm text-slate-400"
   }, "Disconnected zones, estimated load shed (MW) and affected consumer counts following the active fault.")), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-2 md:grid-cols-4 gap-4"
@@ -2256,7 +2259,7 @@ function AffectedPage() {
       className: "text-sm font-semibold text-slate-100"
     }, a.name), /*#__PURE__*/React.createElement("div", {
       className: "text-[11px] text-slate-500 font-mono"
-    }, a.id, " \xB7 ", a.tag))), /*#__PURE__*/React.createElement(Badge, {
+    }, a.id, " · ", a.tag))), /*#__PURE__*/React.createElement(Badge, {
       status: "faulted",
       label: "DISCONNECTED"
     })), /*#__PURE__*/React.createElement("div", {
@@ -2340,7 +2343,7 @@ function RestorationPage() {
       className: "text-lg font-bold text-slate-100"
     }, "Restoration Recommendations"), /*#__PURE__*/React.createElement("p", {
       className: "text-sm text-slate-400"
-    }, "Graph-based decision engine \u2014 alternative supply paths, capacity constraint checks & switching actions.")), /*#__PURE__*/React.createElement(Card, {
+    }, "Graph-based decision engine — alternative supply paths, capacity constraint checks & switching actions.")), /*#__PURE__*/React.createElement(Card, {
       title: "No Active Restoration Plan",
       icon: "route"
     }, /*#__PURE__*/React.createElement("div", {
@@ -2350,7 +2353,7 @@ function RestorationPage() {
       className: "w-12 h-12 text-healthy mb-2"
     }), /*#__PURE__*/React.createElement("div", {
       className: "text-sm text-slate-300 font-semibold"
-    }, "Grid is healthy \u2014 nothing to restore"), /*#__PURE__*/React.createElement("div", {
+    }, "Grid is healthy — nothing to restore"), /*#__PURE__*/React.createElement("div", {
       className: "text-xs text-slate-500 mt-1"
     }, "Trigger a fault scenario from the Simulation Centre to compute alternative supply paths."))));
   }
@@ -2364,7 +2367,7 @@ function RestorationPage() {
     className: "text-lg font-bold text-slate-100"
   }, "Restoration Decision Engine"), /*#__PURE__*/React.createElement("p", {
     className: "text-sm text-slate-400"
-  }, fault.id, " \xB7 ", plan.strategy)), /*#__PURE__*/React.createElement("div", {
+  }, fault.id, " · ", plan.strategy)), /*#__PURE__*/React.createElement("div", {
     className: "flex items-center gap-2"
   }, executed && grid.statusPhase === 'restored' && /*#__PURE__*/React.createElement(Badge, {
     status: "healthy",
@@ -2497,7 +2500,7 @@ function RestorationPage() {
       className: "text-[11px] text-restoration font-mono"
     }, "awaiting execution") : executed ? /*#__PURE__*/React.createElement("span", {
       className: "text-[11px] text-healthy font-mono"
-    }, "executed \u2713") : null
+    }, "executed ✓") : null
   }, /*#__PURE__*/React.createElement("div", {
     className: "space-y-2"
   }, plan.actions.map((a, i) => {
@@ -2554,7 +2557,7 @@ function RestorationPage() {
   }, /*#__PURE__*/React.createElement(Icon, {
     name: "checkCircle",
     className: "w-4 h-4"
-  }), "Restoration executed \u2014 Areas re-energised via ", plan.tieSwitch), /*#__PURE__*/React.createElement("button", {
+  }), "Restoration executed — Areas re-energised via ", plan.tieSwitch), /*#__PURE__*/React.createElement("button", {
     onClick: () => actions.resetGrid(),
     className: "px-3 py-2.5 rounded-lg bg-grid-card border border-grid-border text-slate-200 text-sm hover:bg-grid-surface inline-flex items-center gap-2"
   }, /*#__PURE__*/React.createElement(Icon, {
@@ -2613,7 +2616,7 @@ function SimulationPage() {
     className: "text-lg font-bold text-slate-100"
   }, "Simulation Centre"), /*#__PURE__*/React.createElement("p", {
     className: "text-sm text-slate-400"
-  }, "Trigger preset fault scenarios to exercise the full fault-to-recovery pipeline \u2014 detection, localisation, restoration planning & execution.")), /*#__PURE__*/React.createElement(Card, {
+  }, "Trigger preset fault scenarios to exercise the full fault-to-recovery pipeline — detection, localisation, restoration planning & execution.")), /*#__PURE__*/React.createElement(Card, {
     title: "Current Grid State",
     icon: "gauge"
   }, /*#__PURE__*/React.createElement("div", {
@@ -2660,7 +2663,7 @@ function SimulationPage() {
     className: "flex items-start gap-1.5"
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-restoration mt-0.5"
-  }, "\u203A"), /*#__PURE__*/React.createElement("span", null, d)))), /*#__PURE__*/React.createElement("button", {
+  }, "›"), /*#__PURE__*/React.createElement("span", null, d)))), /*#__PURE__*/React.createElement("button", {
     onClick: () => actions.triggerScenario(s.id),
     disabled: loading,
     className: "mt-4 w-full px-3 py-2.5 rounded-lg font-semibold text-sm inline-flex items-center justify-center gap-2 disabled:opacity-60 transition-colors " + s.btnCls
@@ -2719,9 +2722,9 @@ function SimulationPage() {
     className: "mt-3 text-xs text-slate-400"
   }, "Active scenario ", /*#__PURE__*/React.createElement("span", {
     className: "font-mono text-restoration"
-  }, active.scenarioId), " \xB7 fault ", /*#__PURE__*/React.createElement("span", {
+  }, active.scenarioId), " · fault ", /*#__PURE__*/React.createElement("span", {
     className: "font-mono text-warning"
-  }, active.id), " \xB7 phase ", /*#__PURE__*/React.createElement("span", {
+  }, active.id), " · phase ", /*#__PURE__*/React.createElement("span", {
     className: "font-mono text-slate-200"
   }, grid.statusPhase))));
 }
@@ -2810,7 +2813,7 @@ function HistoryPage() {
     className: "flex items-center justify-between flex-wrap gap-3"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", {
     className: "text-lg font-bold text-slate-100"
-  }, "Event History \u2014 Audit Log"), /*#__PURE__*/React.createElement("p", {
+  }, "Event History — Audit Log"), /*#__PURE__*/React.createElement("p", {
     className: "text-sm text-slate-400"
   }, "Filterable record of faults, localisation results, switching actions & final restoration outcomes.")), /*#__PURE__*/React.createElement("button", {
     onClick: doRefresh,
@@ -2843,7 +2846,7 @@ function HistoryPage() {
   }), /*#__PURE__*/React.createElement("input", {
     value: query,
     onChange: e => setQuery(e.target.value),
-    placeholder: "Search detail, location, fault ID\u2026",
+    placeholder: "Search detail, location, fault ID…",
     className: "w-full bg-grid-panel border border-grid-border rounded-lg pl-9 pr-3 py-2 text-sm text-slate-100 focus:border-restoration focus:outline-none"
   })))), /*#__PURE__*/React.createElement(Card, {
     title: "Audit Log",

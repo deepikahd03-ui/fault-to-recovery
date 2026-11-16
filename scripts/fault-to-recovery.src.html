@@ -188,7 +188,13 @@ const fmtDateTime = (ts) => {
     swaps in the real Python/Flask + networkx API. The React layer is
     unchanged — to retarget, just change API_BASE.)
 --------------------------------------------------------------------- */
-const API_BASE = 'http://localhost:5000/api';
+// Origin-aware: when the page is served by Flask (localhost OR a public tunnel/domain),
+// use the same origin so visitors reach the right backend. When opened as a file://,
+// fall back to the local Flask dev server.
+const API_BASE =
+  (typeof window !== 'undefined' && window.location.protocol.startsWith('http'))
+    ? window.location.origin + '/api'
+    : 'http://localhost:5000/api';
 
 async function _jfetch(path, opts = {}) {
   const res = await fetch(API_BASE + path, { headers: { 'Content-Type': 'application/json' }, ...opts });
