@@ -1,0 +1,12 @@
+# Render Blueprint — copy this file to the REPO ROOT, then in Render:
+#   New → Blueprint → select your repo.
+# Render creates the web service automatically from this spec.
+services:
+  - type: web
+    name: fault-to-recovery
+    runtime: python
+    rootDir: download/backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    plan: free
+    autoDeploy: true

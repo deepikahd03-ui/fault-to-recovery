@@ -113,4 +113,5 @@ if __name__ == "__main__":
     print(" Frontend: http://localhost:5000/")
     print(" Login:    admin@bescom.sim / demo123")
     print("=" * 60)
-    app.run(host="0.0.0.0", port=5000, threaded=True, debug=False)
+    port = int(os.environ.get("PORT", 5000))  # Render/Heroku set PORT; local default 5000
+    app.run(host="0.0.0.0", port=port, threaded=True, debug=False)
