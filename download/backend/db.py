@@ -92,6 +92,13 @@ SCHEMA = [
     """CREATE TABLE IF NOT EXISTS app_state (
         key TEXT PRIMARY KEY, value TEXT
     )""",
+    """CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT UNIQUE NOT NULL,
+        name TEXT, role TEXT, station TEXT,
+        password_hash TEXT NOT NULL,
+        created_at INTEGER
+    )""",
 ]
 
 DEFAULT_APP_STATE = {
@@ -101,6 +108,14 @@ DEFAULT_APP_STATE = {
     "restoration_executed": "0",
     "restoration_path": "[]",
 }
+
+# ---------------------------------------------------------------- seed users
+# Operator accounts seeded on first boot. Passwords are hashed with werkzeug's
+# PBKDF2 (generate_password_hash) before storage — the plaintext lives only here.
+SEED_USERS = [
+    {"email": "admin@bescom.sim", "password": "demo123",
+     "name": "Grid Operator", "role": "Shift Engineer", "station": "BESCOM Circle 4"},
+]
 
 # ---------------------------------------------------------------- connection
 def get_conn():
@@ -143,7 +158,26 @@ def init_db():
         # ensure all app_state keys exist
         for k, v in DEFAULT_APP_STATE.items():
             cur.execute("INSERT OR IGNORE INTO app_state (key,value) VALUES (?,?)", (k, v))
+        # seed operator accounts if the users table is empty
+        n_users = cur.execute("SELECT COUNT(*) FROM users").fetchone()[0]
+        if n_users == 0:
+            from werkzeug.security import generate_password_hash
+            for u in SEED_USERS:
+                cur.execute(
+                    """INSERT INTO users (email,name,role,station,password_hash,created_at)
+                       VALUES (?,?,?,?,?,?)""",
+                    (u["email"].lower(), u["name"], u["role"], u["station"],
+                     generate_password_hash(u["password"]), int(time.time())))
         conn.commit()
+
+# ---------------------------------------------------------------- user queries
+def get_user_by_email(email):
+    """Return the user row (incl. password_hash) for an email, or None.
+    The hash is only used by app.py to verify the login password."""
+    with _lock:
+        r = get_conn().execute(
+            "SELECT * FROM users WHERE email=?", ((email or "").strip().lower(),)).fetchone()
+        return dict(r) if r else None
 
 # ---------------------------------------------------------------- node queries
 def get_nodes():

@@ -215,13 +215,68 @@ const fmtDateTime = ts => {
 // use the same origin so visitors reach the right backend. When opened as a file://,
 // fall back to the local Flask dev server.
 const API_BASE = typeof window !== 'undefined' && window.location.protocol.startsWith('http') ? window.location.origin + '/api' : 'http://localhost:5000/api';
+
+// --- Auth token storage (localStorage). The backend issues a signed Bearer
+// token on /api/login; every protected request attaches it. On 401 we clear
+// the session and notify the app so it returns to the login screen.
+const _TOKEN_KEY = 'ftr_token';
+const _USER_KEY = 'ftr_user';
+function _getToken() {
+  try {
+    return localStorage.getItem(_TOKEN_KEY) || '';
+  } catch (_) {
+    return '';
+  }
+}
+function _setToken(t) {
+  try {
+    t ? localStorage.setItem(_TOKEN_KEY, t) : localStorage.removeItem(_TOKEN_KEY);
+  } catch (_) {}
+}
+function _getStoredUser() {
+  try {
+    const s = localStorage.getItem(_USER_KEY);
+    return s ? JSON.parse(s) : null;
+  } catch (_) {
+    return null;
+  }
+}
+function _setStoredUser(u) {
+  try {
+    u ? localStorage.setItem(_USER_KEY, JSON.stringify(u)) : localStorage.removeItem(_USER_KEY);
+  } catch (_) {}
+}
+function _clearSession() {
+  _setToken('');
+  _setStoredUser(null);
+}
+function _notifyUnauth() {
+  // App listens for this event to drop back to the login screen.
+  try {
+    window.dispatchEvent(new CustomEvent('ftr:unauth'));
+  } catch (_) {}
+}
 async function _jfetch(path, opts = {}) {
+  const headers = {
+    'Content-Type': 'application/json'
+  };
+  const tok = _getToken();
+  if (tok) headers['Authorization'] = 'Bearer ' + tok;
   const res = await fetch(API_BASE + path, {
-    headers: {
-      'Content-Type': 'application/json'
-    },
+    headers,
     ...opts
   });
+  if (res.status === 401) {
+    // Token missing/invalid/expired — protected resource refused us. Force re-login.
+    _clearSession();
+    _notifyUnauth();
+    let msg = 'Session expired. Please sign in again.';
+    try {
+      const j = await res.json();
+      if (j && j.error) msg = j.error;
+    } catch (_) {}
+    throw new Error(msg);
+  }
   if (!res.ok) {
     let msg = 'API error ' + res.status;
     try {
@@ -233,11 +288,29 @@ async function _jfetch(path, opts = {}) {
   return res.json();
 }
 const apiService = {
+  getStoredUser: _getStoredUser,
+  // login bypasses _jfetch: a 401 here means "wrong credentials" (an expected
+  // outcome), not "session expired", so we parse the body and return it.
   async login(creds) {
-    return _jfetch('/login', {
+    const res = await fetch(API_BASE + '/login', {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify(creds)
     });
+    const body = await res.json().catch(() => ({}));
+    if (res.ok && body && body.ok && body.token) {
+      _setToken(body.token);
+      _setStoredUser(body.user);
+    }
+    return body || {
+      ok: false,
+      error: 'Login failed.'
+    };
+  },
+  logout() {
+    _clearSession();
   },
   async getGridState() {
     return _jfetch('/network/state');
@@ -307,24 +380,39 @@ function GridProvider({
     return s;
   }, []);
 
-  // boot: fetch initial grid state from the backend
+  // boot: fetch initial grid state — only if an operator session already exists.
+  // Without a token the protected endpoint would 401; the Login screen shows instead.
+  // A 401 here (expired token) is handled by the unauth flow, not the boot-error screen.
   useEffect(() => {
     mountedRef.current = true;
+    if (!apiService.getStoredUser()) return;
     apiService.getGridState().then(s => {
       if (mountedRef.current) setGrid(s);
     }).catch(e => {
-      if (mountedRef.current) setBootError(e.message || String(e));
+      if (mountedRef.current && apiService.getStoredUser()) setBootError(e.message || String(e));
     });
     return () => {
       mountedRef.current = false;
     };
   }, []);
 
-  // live telemetry poll — every 3s from the real backend (skipped while a mutation is in flight)
+  // session expiry: a protected call returned 401 → drop grid + any boot error so
+  // the Login screen (rendered by App on the same event) is what the user sees.
+  useEffect(() => {
+    const onUnauth = () => {
+      setBootError(null);
+      setGrid(null);
+    };
+    window.addEventListener('ftr:unauth', onUnauth);
+    return () => window.removeEventListener('ftr:unauth', onUnauth);
+  }, []);
+
+  // live telemetry poll — every 3s from the real backend (skipped while a mutation
+  // is in flight, and when no operator session exists)
   useEffect(() => {
     if (!grid) return;
     const id = setInterval(() => {
-      if (loadingRef.current) return;
+      if (loadingRef.current || !apiService.getStoredUser()) return;
       apiService.getGridState().then(s => {
         if (mountedRef.current) setGrid(s);
       }).catch(() => {});
@@ -332,7 +420,16 @@ function GridProvider({
     return () => clearInterval(id);
   }, [grid ? 'on' : 'off']);
   const actions = useMemo(() => ({
-    login: async creds => apiService.login(creds),
+    login: async creds => {
+      const res = await apiService.login(creds);
+      // On success the token is now stored — load the grid for the new session.
+      if (res && res.ok) {
+        try {
+          await refresh();
+        } catch (_) {}
+      }
+      return res;
+    },
     triggerScenario: async sid => {
       loadingRef.current = true;
       setLoading(true);
@@ -417,7 +514,11 @@ function GridProvider({
       className: "w-4 h-4"
     }), "Retry connection")));
   }
-  if (!grid) {
+
+  // Show the "connecting" loader only when an operator session exists but the
+  // grid hasn't loaded yet. With no session, fall through and render children
+  // (the Login screen) instead of hiding it behind a perpetual loader.
+  if (!grid && apiService.getStoredUser()) {
     return /*#__PURE__*/React.createElement("div", {
       className: "min-h-screen flex items-center justify-center p-4 flex-col gap-4"
     }, /*#__PURE__*/React.createElement("div", {
@@ -3003,10 +3104,22 @@ function Shell({
   }, render()))));
 }
 function App() {
-  const [user, setUser] = useState(null);
+  // Restore an existing operator session (token in localStorage) so a page refresh
+  // keeps you logged in. If the token has expired, the first protected call 401s
+  // → _notifyUnauth → we drop back to the Login screen automatically.
+  const [user, setUser] = useState(() => apiService.getStoredUser());
+  useEffect(() => {
+    const onUnauth = () => setUser(null);
+    window.addEventListener('ftr:unauth', onUnauth);
+    return () => window.removeEventListener('ftr:unauth', onUnauth);
+  }, []);
+  const logout = () => {
+    apiService.logout();
+    setUser(null);
+  };
   return /*#__PURE__*/React.createElement(GridProvider, null, user ? /*#__PURE__*/React.createElement(Shell, {
     user: user,
-    onLogout: () => setUser(null)
+    onLogout: logout
   }) : /*#__PURE__*/React.createElement(Login, {
     onLogin: setUser
   }));
